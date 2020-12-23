@@ -1,0 +1,23 @@
+{
+  "name": "laerdal",
+  "version": "1.0.0",
+  "description": "gitlab推送企业微信群组机器人",
+  "private": true,
+  "scripts": {
+    "start": "egg-scripts start",
+    "stop": "egg-scripts stop",
+    "dev": "egg-bin dev"
+  },
+  "author": "https://github.com/lenovo-filez",
+  "license": "ISC",
+  "dependencies": {
+    "egg": "^2.15.1",
+    "egg-scripts": "^2.11.0",
+    "string": "^3.3.3"
+  },
+  "devDependencies": {
+    "egg-bin": "^4.11.0",
+    "eslint": "^5.13.0",
+    "eslint-config-egg": "^7.1.0"
+  }
+}

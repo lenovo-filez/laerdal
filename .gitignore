@@ -1,0 +1,17 @@
+.DS_Store
+
+*.log
+
+.idea
+.vscode
+.project
+.settings
+.svn
+.github/
+run/
+typings/
+
+node_modules/
+
+/dist
+yarn.lock

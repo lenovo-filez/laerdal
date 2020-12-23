@@ -1,0 +1,21 @@
+version: '3.0'
+
+services:
+  bot:
+    build: .
+    ports:
+      - 7001:7001
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: '1'
+          memory: 64M
+        limits:
+          cpus: '2'
+          memory: 256M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
