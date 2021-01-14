@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>配置定时任务</title>
+    <style>
+      .top-operation {
+        margin-bottom: 16px;
+        text-align: right;
+      }
+
+      .button {
+        font-size: 12px;
+        display: inline-block;
+        line-height: 32px;
+        padding: 0 12px;
+        background: #1890ff;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .button-text {
+        font-size: 12px;
+        display: inline-block;
+        line-height: 28px;
+        padding: 0 12px;
+        color: #1890ff;
+        cursor: pointer;
+      }
+
+      .table-row {
+        display: flex;
+        justify-content: space-between;
+        line-height: 32px;
+        border: 1px solid #eee;
+      }
+
+      .table-row:not(:last-of-type) {
+        border-bottom: 0;
+      }
+
+      .table-row > span {
+        width: 20%;
+        text-align: center;
+        border-right: 1px solid #eee;
+      }
+
+      .table-row > span:last-child {
+        border-right: 0;
+      }
+
+      .pre-line {
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-operation">
+      <span class="button" onclick="toAdd()">添加配置</span>
+    </div>
+    <div class="table-row">
+      <span>微信群组Webhook</span>
+      <span>发送内容</span>
+      <span>定时发送规则(Cron风格)</span>
+      <span>定时发送判断条件</span>
+      <span>操作</span>
+    </div>
+    {{#each(data)}}
+      <div class="table-row">
+        <span>{{this.url}}</span>
+        <span class="pre-line">{{this.content}}</span>
+        <span>{{this.cron}}</span>
+        <span>{{this.options}}</span>
+        <span>
+          <span class="button-text" onclick="toEdit({{this.id}})">编辑</span>
+          <span class="button-text" onclick="toggleJob({{this.id}}, {{this.isStarting}})">{{ this.isStarting ? '关闭定时任务' : '重启定时任务' }}</span>
+          <span class="button-text" onclick="deleteData({{this.id}})">删除</span>
+        </span>
+      </div>
+    {{/each}}
+  </body>
+  <script>
+    function toAdd() {
+      location.href = '/job/view/add';
+    }
+
+    function toEdit(id) {
+      location.href = `/job/view/${id}/edit`;
+    }
+
+    function deleteData(id) {
+      fetch(`/job/delete?jobId=${id}`, {
+        method: 'get',
+      }).then(response => response.json()).then(res => {
+        location.reload();
+      })
+    }
+
+    function toggleJob(id, isStarting) {
+      const queryUrl = isStarting ? `/job/stop?jobId=${id}` : `/job/restart?jobId=${id}`
+      fetch(queryUrl, {
+        method: 'get',
+      }).then(response => response.json()).then(res => {
+        location.reload();
+      })
+    }
+  </script>
+</html>

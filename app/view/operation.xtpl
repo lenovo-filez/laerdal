@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>配置定时任务</title>
+    <style>
+      form {
+        width: 40%;
+        margin: 0 auto;
+      }
+
+      .back {
+        line-height: 48px;
+        text-align: left;
+      }
+
+      .form-item-lable {
+        line-height: 32px;
+        font-size: 12px;
+      }
+
+      .form-item-lable > span {
+        color: red;
+      }
+
+      input, textarea {
+        width: 100%;
+      }
+
+      input[type="radio"], input[type="checkbox"] {
+        width: auto;
+      }
+
+      .checkbox {
+        margin-top: 16px;
+      }
+
+      .submit-container {
+        text-align: center;
+        margin-top: 16px;
+      }
+
+      .button {
+        font-size: 12px;
+        display: inline-block;
+        line-height: 32px;
+        padding: 0 12px;
+        background: #1890ff;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .button-text {
+        font-size: 12px;
+        display: inline-block;
+        padding: 0 12px;
+        color: #1890ff;
+        cursor: pointer;
+      }
+
+      .hide {
+        visibility: hidden;
+      }
+
+      .show {
+        visibility: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <div class="back">
+        <span class="button" onclick="toList()">返回列表</span>
+      </div>
+      <div class="form-item-lable">微信群组Webhook <span>*</span></div>
+      <input placeholder="请输入微信群组Webhook" id="url" value="{{ data ? data.url : '' }}" />
+      <div class="form-item-lable">发送内容 <span>*</span></div>
+      <textarea rows="3" cols="20" placeholder="请输入发送内容" id="content">{{ data ? data.content : '' }}</textarea>
+      <div class="form-item-lable">定时发送规则(Cron风格参考下方介绍) <span>*</span></div>
+      <input placeholder="请输入定时发送规则" id="cron" value="{{ data ? data.cron : '' }}" />
+      <div class="checkbox">
+        {{# if (data && data.options) }}
+        <input type="checkbox" id="add_options" checked onclick="toggleAddOptions(this)" />添加定时发送判断条件
+        {{ else }}
+        <input type="checkbox" id="add_options" onclick="toggleAddOptions(this)" />添加定时发送判断条件
+        {{/ if }}
+      </div>
+      <div id="options-box" class="{{ data && data.options ? 'show' : 'hide' }}">
+        <div class="form-item-lable">定时发送判断条件 <div class="button-text" onclick="clearRadio()">清空定时发送判断条件选择项</div></div>
+        {{# if (data && data.options === 'isSendDaily') }}
+        <input type="radio" name="options" value="isSendDaily" checked /> isSendDaily(日报形式 考虑节假日形式)
+        {{ else }}
+        <input type="radio" name="options" value="isSendDaily" /> isSendDaily(日报形式 考虑节假日形式)
+        {{/ if }}
+        {{# if (data && data.options === 'isSendWeekly') }}
+        <input type="radio" name="options" value="isSendWeekly" checked /> isSendWeekly(周报形式 考虑节假日形式)
+        {{ else }}
+        <input type="radio" name="options" value="isSendWeekly" /> isSendWeekly(周报形式 考虑节假日形式)
+        {{/ if }}
+      </div>
+      <div class="submit-container">
+        <span class="button" onclick="submit({{ jobId }})">保存</span>
+      </div>
+      <div>
+        <h2>定时发送规则介绍</h2>
+        <div>
+        6个占位符从左到右分别代表：秒、分、时、日、月、周几
+        *表示通配符，匹配任意，当秒是*时，表示任意秒数都触发，其它类推
+        </div>
+        <pre>
+          * * * * * *
+          ┬ ┬ ┬ ┬ ┬ ┬
+          │ │ │ │ │  |
+          │ │ │ │ │ └ day of week (0 - 7) (0 or 7 is Sun)
+          │ │ │ │ └───── month (1 - 12)
+          │ │ │ └────────── day of month (1 - 31)
+          │ │ └─────────────── hour (0 - 23)
+          │ └──────────────────── minute (0 - 59)
+          └───────────────────────── second (0 - 59, OPTIONAL)
+        </pre>
+        <h2>简单举例</h2>
+        <pre>
+          每分钟的第30秒触发：30 * * * * *
+          每小时的1分30秒触发：30 1 * * * *
+          每天的凌晨1点1分30秒触发：30 1 1 * * *
+          每月的1日1点1分30秒触发：30 1 1 1 * *
+          2016年的1月1日1点1分30秒触发：30 1 1 1 2016 *
+          每周1的1点1分30秒触发：30 1 1 * * 1
+        </pre>
+      </div>
+    </form>
+  </body>
+  <script>
+    function submit(jobId) {
+      const url = document.getElementById("url").value;
+      const content = document.getElementById("content").value;
+      const cron = document.getElementById("cron").value;
+      const options_dom = document.getElementsByName("options");
+      const optionsBoxDom = document.getElementById("add_options");
+      let options = '';
+      if (options_dom && optionsBoxDom.checked) {
+        Array.from(options_dom).forEach(item => {
+          if (item.checked) {
+            options = item.value;
+          }
+        });
+      }
+      if (url && content && cron) {
+        let fetchUrl = jobId ? '/job/update' : '/job/add';
+        fetchUrl = `${fetchUrl}?url=${url}&content=${encodeURI(content)}&cron=${cron}&options=${options}`;
+        if (jobId) {
+          fetchUrl = `${fetchUrl}&id=${jobId}`;
+        }
+        fetch(fetchUrl, {
+          method: 'get',
+        }).then(response => response.json()).then(res => {
+          if (res && res.data) {
+            toList();
+          }
+        })
+      }
+    }
+
+    function clearRadio() {
+      const options_dom = document.getElementsByName("options");
+      Array.from(options_dom).forEach(item => {
+        item.checked = false;
+      });
+    }
+
+    function toList() {
+      location.href = '/job/view/list';
+    }
+
+    function toggleAddOptions(checkboxDom) {
+      const optionsBoxDom = document.getElementById("options-box");
+      if (checkboxDom.checked) {
+        optionsBoxDom.style.visibility = "visible";
+      } else {
+        optionsBoxDom.style.visibility = "hidden";
+      }
+    }
+
+  </script>
+</html>

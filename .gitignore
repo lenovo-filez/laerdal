@@ -1,6 +1,7 @@
 .DS_Store
 
 *.log
+*.logs
 
 .idea
 .vscode
@@ -8,6 +9,8 @@
 .settings
 .svn
 .github/
+*.db
+logs
 run/
 typings/
 

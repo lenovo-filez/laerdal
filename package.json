@@ -4,7 +4,7 @@
   "description": "gitlab推送企业微信群组机器人",
   "private": true,
   "scripts": {
-    "start": "egg-scripts start",
+    "start": "egg-scripts start --workers=1",
     "stop": "egg-scripts stop",
     "dev": "egg-bin dev"
   },
@@ -13,6 +13,10 @@
   "dependencies": {
     "egg": "^2.15.1",
     "egg-scripts": "^2.11.0",
+    "egg-view-xtpl": "^1.2.0",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1",
+    "node-schedule": "^1.3.2",
     "string": "^3.3.3"
   },
   "devDependencies": {
