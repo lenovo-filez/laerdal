@@ -3,6 +3,7 @@
 module.exports = app => {
   const { router, controller } = app;
   router.post('/send/:groupkey', controller.home.index);
+  router.post('/jira/send/:groupkey', controller.jiraSend.sendMessage);
   router.get('/job/list', controller.scheduleOperation.querySchedule);
   router.get('/job/add', controller.scheduleOperation.addSchedule);
   router.get('/job/update', controller.scheduleOperation.updateSchedule);

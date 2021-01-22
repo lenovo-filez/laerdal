@@ -1,69 +1,42 @@
 # 向企业微信群组推送消息
-## gitlab推送企业微信群组机器人
-> 支持gitlab所有触发动作
+> 通过配置Webhook的方式，将GitLab平台、Jira平台中操作产生的事件消息通知，自动推送至企业微信群组，并提供定时任务消息通知功能。
 
-### 推送显示示例如下
-#### 分支相关操作
-![分支相关操作](static/images/branch.png "分支相关操作")
+## 我们支持的功能
+1. GitLab相关操作推送企业微信群组
+2. Jira相关操作推送企业微信群组
+3. 配置定时任务消息推送企业微信群组
 
-#### tag相关操作
-![tag相关操作](static/images/tag.png "tag相关操作")
+## 创建企业微信群组机器人
+1. 使用管理员身份登录企业微信移动客户端
+2. 进入需要添加机器人的群组，进入群组设置，添加群组机器人
+3. 添加成功后，复制Webhook 地址
 
-#### 评论操作
-- 评论 commit
+## 配置GitLab项目Webhook
+> 以服务部署地址http://100.10.10.100:7001为例
 
-![评论 commit](static/images/comment-commit.png "评论 commit")
-- 评论 Merge Request
+1. 使用**Maintainer身份**进入GitLab需要添加自动推送的项目，进入设置 => 集成 。
+2. 配置Webhook，如企业微信群组机器人Webhook地址为 `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=ce7axxa2-2xx9-4xx5-axx4-aexxxx3cd89c`，将问号后的key值与服务部署地址拼接为` http://100.10.10.100:7001/send/ce7axxa2-2xx9-4xx5-axx4-aexxxx3cd89c`，作为地址填入URL，如下图:
+![GitLab设置](static/images/gitlab.png "GitLab设置")
+3. 勾选需要进行消息推送的Trigger。**注意：取消勾选‘Enable SSL verification’**。点击**Add Webhook**按钮，完成配置。
 
-![评论 Merge Request](static/images/comment-mr.png "评论 Merge Request")
-- 评论 issue
+## 配置Jira的Webhook
+> 以服务部署地址http://100.10.10.100:7001为例
 
-![评论 issue](static/images/comment-issue.png "评论 issue")
+1. 使用**管理员身份**进入 管理 → 系统 → 网络钩子
+2. 配置Webhook，如企业微信群组机器人Webhook地址为 `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=ce7axxa2-2xx9-4xx5-axx4-aexxxx3cd89c`，将问号后的key值与服务部署地址拼接为 `http://100.10.10.100:7001/jira/send/ce7axxa2-2xx9-4xx5-axx4-aexxxx3cd89c`，作为地址填入URL，**注意：不要在URL中使用额外变量**。
+![Jira设置](static/images/jira.png "Jira设置")
+3. 勾选需要进行消息推送的事件。支持 **问题相关事件的问题事件**、**项目相关事件**、**用户相关事件**、**Jira Software相关事件**。点击创建按钮，完成配置。
 
-#### issue相关操作
-![issue相关操作](static/images/issue.png "issue相关操作")
-
-#### Merge Request 相关操作
-![Merge Request 相关操作](static/images/mr.png "Merge Request 相关操作")
-
-#### Pipeline 相关操作
-![Pipeline 相关操作](static/images/pipeline.png "Pipeline 相关操作")
-#### wiki 相关操作
-![wiki 相关操作](static/images/wiki.png "wiki 相关操作")
-
-### 微信群组添加机器人
-> 参考[群机器人配置说明](https://work.weixin.qq.com/api/doc/90000/90136/91770)
-
-
-### gitlab设置webhooks
-1. 进入项目 设置 => 集成
-2. url填写自己服务部署的地址，以服务部署地址为 `http://100.10.10.100:7001` 为例
-```
-// 微信群组机器人的webhookUrl
-https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=ajs2w1o3102ndas9u121aw1u20
- 
-// gitlab集成设置的url，api调用路径最后使用微信群组的key即可
-http://100.10.10.100:7001/send/ajs2w1o3102ndas9u121aw1u20
-```
-3. 选择需要触发推送的操作保存设置即可
-![gitlab设置](static/images/gitlab.png "gitlab设置")
-
-
-## 定时向微信群组推送消息
+## 配置定时任务消息通知
 > 目前只支持文本类型，服务启动会默认开启所有设置为开启状态的定时任务。
 
-### 微信群组添加机器人
-> 参考[群机器人配置说明](https://work.weixin.qq.com/api/doc/90000/90136/91770) 使用所添加机器人的webhook_url作为定时任务配置的url
-
-### web页面配置定时任务
+### 可视化配置形式
 #### 查看所有定时任务情况以及开启状态  /job/view/list
 ![查看所有定时任务配置](static/images/list.png "查看所有定时任务配置")
 #### 添加定时任务  /job/view/add
 ![添加定时任务](static/images/operation.png "添加定时任务")
 
-### 接口形式调用
-> get 请求
-
+### API调用形式（Get请求）
 #### 查看所有定时任务情况  /job/list
 
 **返回值**
@@ -226,7 +199,12 @@ http://100.10.10.100:7001/send/ajs2w1o3102ndas9u121aw1u20
 | data | boolean | 是否重启成功 |
 
 
-## 使用docker部署项目
+## 项目部署
+**使用egg-scripts直接部署项目**
+1. npm install
+2. npm start
+
+**使用docker部署项目**
 > docker-compose up --build -d
 
 通过:7001端口访问服务即可
